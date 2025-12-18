@@ -15,17 +15,34 @@
 
   <!--- Componente ---->
   <script type="text/babel">
+
     const ListaAnimali = () => {
-      const animali = [`Pesce`, `Squalo`, `Balena`];
+      const { useState } = React;
+      const [animals, setAnimals] = useState([]);
+      const animalsChoices = ["Cane", "Gatto", "Pappagallo", "Cavallo", "Panda"];
+
+
+      const PrendiAnimaleCasuale = (array) => {
+        const NumeroCasuale = Math.floor(Math.random() * animalsChoices.length);
+        console.log(NumeroCasuale);
+        const SceltaCasuale = animalsChoices[NumeroCasuale];
+        console.log(SceltaCasuale);
+        setAnimals(animals => [...animals, SceltaCasuale])
+      }
+
+
       return (
-        <details>
-          <summary>Animali</summary>
-          <ul>
-            {animali.map((animale, i) => (
-              <li key={i}>{animale}</li>
-            ))}
-          </ul>
-        </details>
+        <>
+          <button onClick={PrendiAnimaleCasuale}>Aggiungi Animale</button>
+          <details>
+            <summary>Animali</summary>
+            <ul>
+              {animals.map((animale, i) => (
+                <li key={i}>{animale}</li>
+              ))}
+            </ul>
+          </details>
+        </>
       )
     };
 
