@@ -21,8 +21,8 @@
       title,
       content,
       show = false,
-      onClose = () => { },+
-        onConfirm = () => { }
+      onClose = () => { },
+      onConfirm = () => { }
     }) {
       return show && ReactDOM.createPortal(
         <div className="modal-container">
@@ -48,9 +48,11 @@
 
       //Inserisco uno stato per gestire l'input dell'utente 
 
-      const [animaleAggiunto, setAnimaleAggiunto] = useState(``)
-
+      const [animaleAggiunto, setAnimaleAggiunto] = useState(``);
       // const animalsChoices = ["Cane", "Gatto", "Pappagallo", "Cavallo", "Panda"];
+
+      // stato per gestire il caricamento della richiesta API
+      const [loading, setLoading] = useState(false)
 
       // const PrendiAnimaleCasuale = () => {
       //   const NumeroCasuale = Math.floor(Math.random() * animalsChoices.length);
@@ -60,13 +62,43 @@
       //   setAnimals(animals => [...animals, SceltaCasuale])
       // }
 
-
-      const aggiungiAnimale = () => {
-        if (!animaleAggiunto) return;
-        setAnimals(curr => [...curr, animaleAggiunto]);
-        setAnimaleAggiunto("");
-        setShow(false)
+      const aggiungiAnimale = async () => {
+        if (!animaleAggiunto.trim()) return;
+        setLoading(true);
+        try {
+          const responseAnimali = await fetch(`http://localhost:3333/animals?search=${animaleAggiunto}`)
+          const [animale] = await responseAnimali.json();
+          console.log(animale)
+          if (!animale) {
+            alert("animale non trovato ")
+            throw new Error("Nessun animale corrispondente");
+            return
+          }
+          const animaleTrovato = {
+            name: animale.name || null,
+            description: animale.description || null,
+            image: animale.image || null
+          }
+          setAnimals(curr => [...curr, animaleTrovato]);
+        } catch (err) {
+          console.error(err)
+        } finally {
+          setAnimaleAggiunto("");
+          setShow(false)
+          setLoading(false)
+        }
       }
+
+
+
+
+
+      // const aggiungiAnimale = () => {
+      //   if (!animaleAggiunto) return;
+      //   setAnimals(curr => [...curr, animaleAggiunto]);
+      //   setAnimaleAggiunto("");
+      //   setShow(false)
+      // }
 
       return (
         <>
@@ -75,22 +107,22 @@
             <summary>Animali</summary>
             <ul>
               {animals.map((animale, i) => (
-                <li key={i}>{animale}</li>
+                <li key={i}>{animale.name}</li>
               ))}
             </ul>
           </details>
           <Modal
-            show={show}
-            onClose={() => setShow(false)}
-            title="Aggiungi Animale"
-            content={
-              <input
-                type="text"
-                value={animaleAggiunto}
-                onChange={e => setAnimaleAggiunto(e.target.value)}
-              />
-            }
-            onConfirm={aggiungiAnimale}
+            show={show}-
+          onClose={() => setShow(false)}
+          title="Aggiungi Animale"
+          content={
+            <input
+              type="text"
+              value={animaleAggiunto}
+              onChange={e => setAnimaleAggiunto(e.target.value)}
+            />
+          }
+          onConfirm={aggiungiAnimale}
           />
         </>
       )
